@@ -2,6 +2,8 @@
 # Automatically-generated file. Do not edit!
 ################################################################################
 
+SHELL = cmd.exe
+
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
 ../BLMGR.c \
@@ -13,6 +15,16 @@ C_SRCS += \
 ../L3G4200D_Lcfg.c \
 ../uart_test.c 
 
+C_DEPS += \
+./BLMGR.d \
+./BLMGR_CFG.d \
+./BLTD.d \
+./CRC.d \
+./KEYPAD.d \
+./L3G4200D.d \
+./L3G4200D_Lcfg.d \
+./uart_test.d 
+
 OBJS += \
 ./BLMGR.obj \
 ./BLMGR_CFG.obj \
@@ -23,26 +35,6 @@ OBJS += \
 ./L3G4200D_Lcfg.obj \
 ./uart_test.obj 
 
-C_DEPS += \
-./BLMGR.pp \
-./BLMGR_CFG.pp \
-./BLTD.pp \
-./CRC.pp \
-./KEYPAD.pp \
-./L3G4200D.pp \
-./L3G4200D_Lcfg.pp \
-./uart_test.pp 
-
-C_DEPS__QUOTED += \
-"BLMGR.pp" \
-"BLMGR_CFG.pp" \
-"BLTD.pp" \
-"CRC.pp" \
-"KEYPAD.pp" \
-"L3G4200D.pp" \
-"L3G4200D_Lcfg.pp" \
-"uart_test.pp" 
-
 OBJS__QUOTED += \
 "BLMGR.obj" \
 "BLMGR_CFG.obj" \
@@ -52,6 +44,16 @@ OBJS__QUOTED += \
 "L3G4200D.obj" \
 "L3G4200D_Lcfg.obj" \
 "uart_test.obj" 
+
+C_DEPS__QUOTED += \
+"BLMGR.d" \
+"BLMGR_CFG.d" \
+"BLTD.d" \
+"CRC.d" \
+"KEYPAD.d" \
+"L3G4200D.d" \
+"L3G4200D_Lcfg.d" \
+"uart_test.d" 
 
 C_SRCS__QUOTED += \
 "../BLMGR.c" \
