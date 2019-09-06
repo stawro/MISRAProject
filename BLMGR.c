@@ -131,8 +131,8 @@ static void CheckErrorFrame(void);
 /*********************************************************************************/
 /*Utilities*/
 static void RxBufferDnCallBackNotif(void);
-static void MemCpy( u8* DesPtr, const u8* SrcPtr, u16 Length);
-static void MemSet(u8* DesPtr, u8 ConstVal, u16 Length);
+static void MemCpy( u8 DesPtr[], const u8 SrcPtr[], u16 Length,u8 StartIndex1,u8 StartIndex2);
+static void MemSet(u8 DesPtr[], u8 ConstVal, u16 Length);
 #if (COMM_CINFIG == SLAVE_COMM)
 static u8 MemCmp(const u8* Src1Ptr,const u8* Src2Ptr,u16 Length);
 static u8 GetCrcKey(void);
@@ -905,7 +905,7 @@ void BLMGR_SetReceiver(u8 Receiver)
 /*********************************************************************************/
 void BLMGR_SetDeviceName(u8 const DeviceName[],u16 DeviceNameLength)
 {
-	MemCpy(BLMGR_TxDevicName,DeviceName,DeviceNameLength);
+	MemCpy(BLMGR_TxDevicName,DeviceName,DeviceNameLength,0U,0U);
 
 	BLMGR_TxDeviceNameLength = DeviceNameLength;
 }
@@ -931,7 +931,7 @@ static void UpdateIdFrame(void)
 	/*Update Device Type*/
 	BLMGR_DataTxBuffer[DEV_TYPE_IDX] = TX_DEV_TYPE;
 	/*Update Device Name*/
-	MemCpy((u8 *)(&BLMGR_DataTxBuffer[DEV_NAME_IDX]),BLMGR_TxDevicName,BLMGR_TxDeviceNameLength);
+	MemCpy(BLMGR_DataTxBuffer,BLMGR_TxDevicName,BLMGR_TxDeviceNameLength,DEV_NAME_IDX,0U);
 	/*update Default CRC*/
 	MemSet(&BLMGR_DataTxBuffer[FRAME_CRC_IDX],TX_CRC_DEFAULT,2);
 	/*update Frame CheckSum*/
@@ -945,7 +945,7 @@ static u8 CheckIdFrame(void)
 	u8 IsFrameValid3;
 	u8 TempVar1;
 	/* Perform a Checksum on the frame*/
-	TempVar1 = CalculateCheksum(BLMGR_DataRxBuffer,FRAME_CHECKSUM_IDX -1);
+	TempVar1 = CalculateCheksum(BLMGR_DataRxBuffer,FRAME_CHECKSUM_IDX -1U);
 
 	if (TempVar1 == BLMGR_DataRxBuffer[FRAME_CHECKSUM_IDX])
 	{
@@ -980,7 +980,7 @@ static u8 CheckIdFrame(void)
 							/*Update Device Type*/
 							BLMGR_RxDeviceType = BLMGR_DataRxBuffer[DEV_TYPE_IDX];
 							/*Update Device Name*/
-							MemCpy(BLMGR_RxDevicName,&BLMGR_DataRxBuffer[DEV_NAME_IDX],BLMGR_RxDeviceNameLength);
+							MemCpy(BLMGR_RxDevicName,BLMGR_DataRxBuffer,BLMGR_RxDeviceNameLength,0U,DEV_NAME_IDX);
 							BLMGR_ErrorState = ERRH_NO_ERROR;
 							IsFrameValid3 = 1U;
 						}
@@ -1047,22 +1047,22 @@ static void UpdateValFrame(void)
 	BLMGR_DataTxBuffer[PARAM_LENGTH_IDX] = 2U;
 	#if(COMM_CINFIG == MSTER_COMM)
 	/* Start Generating the Key for CRC*/
-	SECR_CrcPolynomialGenerate(&CrcKey,16);
+	SECR_CrcPolynomialGenerate(&CrcKey,16U);
 	BLMGR_CrcKey = CrcKey;
 	#endif
 	/*Calculate CRC*/
 	/*Prepare Data*/
 	TempBuffer[0x00] = BLMGR_RxOsType;
 	TempBuffer[0x01] = BLMGR_RxDeviceType;
-	MemCpy(&TempBuffer[0x02],BLMGR_RxDevicName,BLMGR_RxDeviceNameLength);
+	MemCpy(TempBuffer,BLMGR_RxDevicName,BLMGR_RxDeviceNameLength,0x02U,0U);
 	SECR_GnerateCrc(TempBuffer,BLMGR_RxDeviceNameLength + 2, &Crc,BLMGR_CrcKey);
 	/*Update Crc*/
 	BLMGR_DataTxBuffer[FRAME_VAL_CRC_IDX] = (u8)Crc;
-	BLMGR_DataTxBuffer[FRAME_VAL_CRC_IDX + 1] = (u8)(Crc >> 8);
+	BLMGR_DataTxBuffer[FRAME_VAL_CRC_IDX + 1U] = (u8)(Crc >> 8);
 	/*update Default CRC*/
 	MemSet(&BLMGR_DataTxBuffer[FRAME_CRC_IDX],TX_CRC_DEFAULT,2);
 	/*update Frame CheckSum*/
-	BLMGR_DataTxBuffer[FRAME_CHECKSUM_IDX] = CalculateCheksum(BLMGR_DataTxBuffer,FRAME_CHECKSUM_IDX -1);
+	BLMGR_DataTxBuffer[FRAME_CHECKSUM_IDX] = CalculateCheksum(BLMGR_DataTxBuffer,FRAME_CHECKSUM_IDX -1U);
 	/*update frame tail*/
 	MemSet(&BLMGR_DataTxBuffer[FRAME_TAIL_IDX],0x55,1);
 }
@@ -1072,7 +1072,7 @@ static u8 CheckValFrame(void)
 	u8 IsFrameValid4;
 	u8 TempVar2;
 	/* Perform a Checksum on the frame*/
-	TempVar2 = CalculateCheksum(BLMGR_DataRxBuffer,FRAME_CHECKSUM_IDX -1);
+	TempVar2 = CalculateCheksum(BLMGR_DataRxBuffer,(u16)FRAME_CHECKSUM_IDX -1U);
 	if (TempVar2 == BLMGR_DataRxBuffer[FRAME_CHECKSUM_IDX])
 	{
 		/*Perform Start and end of frame validation*/
@@ -1164,7 +1164,10 @@ static void UpdateDataFrame(void)
 	BLMGR_DataTxBuffer[BATT_LEVEL_IDX] = BLMGR_TxBattLevel;
 	/*Calculate CRC*/
 	MemCpy(TempBuffer2,&BLMGR_DataTxBuffer[BATT_LEVEL_IDX],1);
-	SECR_GnerateCrc(TempBuffer2,1, &Crc2,BLMGR_CrcKey);
+	SECR_GnerateCrc(TempBuffer2,1U, &Crc2,BLMGR_CrcKey);
+
+
+
 	#elif(COMM_CINFIG == SLAVE_COMM)
 	/*Set paramter length*/
 	BLMGR_DataTxBuffer[PARAM_LENGTH_IDX] = 2U;
@@ -1181,9 +1184,9 @@ static void UpdateDataFrame(void)
 	#endif
 	/*Update Crc*/
 	BLMGR_DataTxBuffer[FRAME_CRC_IDX] = (u8)Crc2;
-	BLMGR_DataTxBuffer[FRAME_CRC_IDX + 1] = (u8)(Crc2 >> 8U);
+	BLMGR_DataTxBuffer[FRAME_CRC_IDX + 1U] = (u8)(Crc2 >> 8U);
 	/*update Frame CheckSum*/
-	BLMGR_DataTxBuffer[FRAME_CHECKSUM_IDX] = CalculateCheksum(BLMGR_DataTxBuffer,FRAME_CHECKSUM_IDX -1);
+	BLMGR_DataTxBuffer[FRAME_CHECKSUM_IDX] = CalculateCheksum(BLMGR_DataTxBuffer,FRAME_CHECKSUM_IDX -1U);
 	/*update frame tail*/
 	MemSet(&BLMGR_DataTxBuffer[FRAME_TAIL_IDX],0x55,1);
 }
@@ -1300,7 +1303,7 @@ static void ErrorHandlingStateMachine(void)
 						BLMGR_HandShakeState = HANDSHAKE_STATE_RECV_ID_FRAME;
 						/*Send Error frame*/
 						UpdateErrorFrame(ERROR_TYPE_RESEND_LAST_FRMAE);
-						BLTD_StartReceivingData(BLMGR_DataRxBuffer,ID_FRAME_LENGTH,RxBufferDnCallBackNotif);
+						BLTD_StartReceivingData(BLMGR_DataRxBuffer,ID_FRAME_LENGTH,&RxBufferDnCallBackNotif);
 						BLTD_SendMessage(BLMGR_DataTxBuffer,ERROR_FRAME_LENGTH);
 					}
 					else
@@ -1320,7 +1323,7 @@ static void ErrorHandlingStateMachine(void)
 						BLMGR_HandShakeState = HANDSHAKE_STATE_RECV_VAL_FRAME;
 						/*Send Error frame*/
 						UpdateErrorFrame(ERROR_TYPE_RESEND_LAST_FRMAE);
-						BLTD_StartReceivingData(BLMGR_DataRxBuffer,VAL_FRAME_LENGTH,RxBufferDnCallBackNotif);
+						BLTD_StartReceivingData(BLMGR_DataRxBuffer,VAL_FRAME_LENGTH,&RxBufferDnCallBackNotif);
 						BLTD_SendMessage(BLMGR_DataTxBuffer,ERROR_FRAME_LENGTH);
 					}
 					else
@@ -1372,7 +1375,7 @@ static void ErrorHandlingStateMachine(void)
 				BLMGR_HandShakeState = HANDSHAKE_STATE_IDLE;
 				/*Send Error frame*/
 				UpdateErrorFrame(ERROR_TYPE_START_NEW_HANDSHAKE);
-				BLTD_StartReceivingData(BLMGR_DataRxBuffer,DATA_FRAME_LENGTH,RxBufferDnCallBackNotif);
+				BLTD_StartReceivingData(BLMGR_DataRxBuffer,DATA_FRAME_LENGTH,&RxBufferDnCallBackNotif);
 				BLTD_SendMessage(BLMGR_DataTxBuffer,ERROR_FRAME_LENGTH);
 			}
 			else
@@ -1397,7 +1400,7 @@ static void ErrorHandlingStateMachine(void)
 						BLMGR_HandShakeState = HANDSHAKE_STATE_RECV_ID_FRAME;
 						/*Send Error frame*/
 						UpdateErrorFrame(ERROR_TYPE_RESEND_LAST_FRMAE);
-						BLTD_StartReceivingData(BLMGR_DataRxBuffer,ID_FRAME_LENGTH,RxBufferDnCallBackNotif);
+						BLTD_StartReceivingData(BLMGR_DataRxBuffer,ID_FRAME_LENGTH,&RxBufferDnCallBackNotif);
 						BLTD_SendMessage(BLMGR_DataTxBuffer,ERROR_FRAME_LENGTH);
 					}
 					else
@@ -1417,7 +1420,7 @@ static void ErrorHandlingStateMachine(void)
 						BLMGR_HandShakeState = HANDSHAKE_STATE_RECV_VAL_FRAME;
 						/*Send Error frame*/
 						UpdateErrorFrame(ERROR_TYPE_RESEND_LAST_FRMAE);
-						BLTD_StartReceivingData(BLMGR_DataRxBuffer,VAL_FRAME_LENGTH,RxBufferDnCallBackNotif);
+						BLTD_StartReceivingData(BLMGR_DataRxBuffer,VAL_FRAME_LENGTH,&RxBufferDnCallBackNotif);
 						BLTD_SendMessage(BLMGR_DataTxBuffer,ERROR_FRAME_LENGTH);
 					}
 					else
@@ -1437,7 +1440,7 @@ static void ErrorHandlingStateMachine(void)
 						BLMGR_CommState = COMM_STATE_RECV_DATA_FRAME;
 						/*Send Error frame*/
 						UpdateErrorFrame(ERROR_TYPE_RESEND_LAST_FRMAE);
-						BLTD_StartReceivingData(BLMGR_DataRxBuffer,DATA_FRAME_LENGTH,RxBufferDnCallBackNotif);
+						BLTD_StartReceivingData(BLMGR_DataRxBuffer,DATA_FRAME_LENGTH,&RxBufferDnCallBackNotif);
 						BLTD_SendMessage(BLMGR_DataTxBuffer,ERROR_FRAME_LENGTH);
 					}
 					else
@@ -1524,7 +1527,7 @@ static void ErrorHandlingStateMachine(void)
 						BLMGR_HandShakeState = HANDSHAKE_STATE_RECV_ID_FRAME;
 						/*Send Error frame*/
 						UpdateErrorFrame(ERROR_TYPE_UPDATE_UR_TRANSMITTER);
-						BLTD_StartReceivingData(BLMGR_DataRxBuffer,ID_FRAME_LENGTH,RxBufferDnCallBackNotif);
+						BLTD_StartReceivingData(BLMGR_DataRxBuffer,ID_FRAME_LENGTH,&RxBufferDnCallBackNotif);
 						BLTD_SendMessage(BLMGR_DataTxBuffer,ERROR_FRAME_LENGTH);
 					}
 					else
@@ -1544,7 +1547,7 @@ static void ErrorHandlingStateMachine(void)
 						BLMGR_HandShakeState = HANDSHAKE_STATE_RECV_VAL_FRAME;
 						/*Send Error frame*/
 						UpdateErrorFrame(ERROR_TYPE_UPDATE_UR_TRANSMITTER);
-						BLTD_StartReceivingData(BLMGR_DataRxBuffer,VAL_FRAME_LENGTH,RxBufferDnCallBackNotif);
+						BLTD_StartReceivingData(BLMGR_DataRxBuffer,VAL_FRAME_LENGTH,&RxBufferDnCallBackNotif);
 						BLTD_SendMessage(BLMGR_DataTxBuffer,ERROR_FRAME_LENGTH);
 					}
 					else
@@ -1564,7 +1567,7 @@ static void ErrorHandlingStateMachine(void)
 						BLMGR_CommState = COMM_STATE_RECV_DATA_FRAME;
 						/*Send Error frame*/
 						UpdateErrorFrame(ERROR_TYPE_UPDATE_UR_TRANSMITTER);
-						BLTD_StartReceivingData(BLMGR_DataRxBuffer,DATA_FRAME_LENGTH,RxBufferDnCallBackNotif);
+						BLTD_StartReceivingData(BLMGR_DataRxBuffer,DATA_FRAME_LENGTH,&RxBufferDnCallBackNotif);
 						BLTD_SendMessage(BLMGR_DataTxBuffer,ERROR_FRAME_LENGTH);
 					}
 					else
@@ -1641,9 +1644,9 @@ static void UpdateErrorFrame(u8 ErrorType)
 	BLMGR_DataTxBuffer[ERROR_TYPE_IDX] = ErrorType;
 	/*Update Crc*/
 	BLMGR_DataTxBuffer[FRAME_CRC_IDX] = TX_CRC_DEFAULT;
-	BLMGR_DataTxBuffer[FRAME_CRC_IDX + 1] = TX_CRC_DEFAULT;
+	BLMGR_DataTxBuffer[FRAME_CRC_IDX + 1U] = TX_CRC_DEFAULT;
 	/*update Frame CheckSum*/
-	BLMGR_DataTxBuffer[FRAME_CHECKSUM_IDX] = CalculateCheksum(BLMGR_DataTxBuffer,FRAME_CHECKSUM_IDX -1);
+	BLMGR_DataTxBuffer[FRAME_CHECKSUM_IDX] = CalculateCheksum(BLMGR_DataTxBuffer,FRAME_CHECKSUM_IDX - 1U);
 	/*update frame tail*/
 	MemSet(&BLMGR_DataTxBuffer[FRAME_TAIL_IDX],0x55,1);
 }
@@ -1721,21 +1724,23 @@ static void CheckErrorFrame(void)
 	}
 }
 /*********************************************************************************/
-static void MemCpy( u8* DesPtr, const u8* SrcPtr, u16 Length)
+static void MemCpy( u8 DesPtr[], const u8 SrcPtr[], u16 Length,u8 StartIndex1,u8 StartIndex2)
 {
-	u16 LoopIndex2;
-	for(LoopIndex2 = 0U; LoopIndex2 < Length; LoopIndex2 ++)
+	u16 LoopIndex2First=StartIndex1,LoopIndex2Second=StartIndex2,i;
+	for(i=0U; i < Length; i++)
 	{
-		*(DesPtr + LoopIndex2) = *(SrcPtr + LoopIndex2);
+
+	    DesPtr[LoopIndex2First+i] =  SrcPtr[LoopIndex2Second+i];
+
 	}
 }
 /*********************************************************************************/
-static void MemSet(u8* DesPtr, u8 ConstVal, u16 Length)
+static void MemSet(u8 DesPtr[], u8 ConstVal, u16 Length)
 {
 	u16 LoopIndex3;
 	for(LoopIndex3 = 0U; LoopIndex3 < Length; LoopIndex3 ++)
 	{
-		*(DesPtr + LoopIndex3) = ConstVal;
+		DesPtr[LoopIndex3]=ConstVal;
 	}
 }
 /*********************************************************************************/
@@ -1856,24 +1861,24 @@ static void DisconnectInit(void)
 /*********************************************************************************/
 static void BuzzerInit(void)
 {
-	DIO_InitPortDirection(BuzzerConfig.Portname,0xff,BuzzerConfig.Portmask);
-	DIO_WritePort(BuzzerConfig.Portname,0x00,BuzzerConfig.Portmask);
+	DIO_InitPortDirection(BuzzerConfig.Portname,0xffU,BuzzerConfig.Portmask);
+	DIO_WritePort(BuzzerConfig.Portname,0x00U,BuzzerConfig.Portmask);
 }
 /*********************************************************************************/
 static void PowerBlueToothInit(void)
 {
-	DIO_InitPortDirection(BlueToothPwrConfig.Portname,0xff,BlueToothPwrConfig.Portmask);
-	DIO_WritePort(BlueToothPwrConfig.Portname,0x00,BlueToothPwrConfig.PortMask);
+	DIO_InitPortDirection(BlueToothPwrConfig.Portname,0xffU,BlueToothPwrConfig.Portmask);
+	DIO_WritePort(BlueToothPwrConfig.Portname,0x00U,BlueToothPwrConfig.PortMask);
 }
 /*********************************************************************************/
 static void BlueToothKeyInit(void)
 {
-	DIO_InitPortDirection(BluetoothKeyConfig.Portname,0xff,BluetoothKeyConfig.PortMask);
-	DIO_WritePort(BluetoothKeyConfig.Portname,0xff,BluetoothKeyConfig.PortMask);
+	DIO_InitPortDirection(BluetoothKeyConfig.Portname,0xffU,BluetoothKeyConfig.PortMask);
+	DIO_WritePort(BluetoothKeyConfig.Portname,0xffU,BluetoothKeyConfig.PortMask);
 }
 
 static void InserBreakPoint(void)
 {
-	DIO_WritePort(BuzzerConfig.Portname,0xff,BuzzerConfig.PortMask);
+	DIO_WritePort(BuzzerConfig.Portname,0xffU,BuzzerConfig.PortMask);
 	while(1);
 }
