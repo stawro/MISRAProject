@@ -7,8 +7,8 @@
 #include "DIO.h"
 
 /*Local Symbols*/
-#define KPD_COL_PORT PD
-#define KPD_ROW_PORT PD
+#define KPD_COL_PORT (PD)
+#define KPD_ROW_PORT (PD)
 #define KPD_COL_MASK 0x70
 #define KPD_ROW_MASK 0x0f
 #define KPD_COL_PIN_NUM 4u
@@ -35,15 +35,15 @@ void KPD_ReadVal(char* ValuePtr)
 {
 	unsigned char Rowdata;
 	unsigned char ColData;
-	unsigned char LoopTermnate = 0;
-	for(Rowdata = 0 ; (Rowdata < 4) & (LoopTermnate == 0) ; Rowdata ++)
+	unsigned char LoopTermnate = 0U;
+	for(Rowdata = 0U ; (Rowdata < 4U) & (LoopTermnate == 0U) ; Rowdata ++)
 	{
 		KPD_ROW_WRITE((1<<Rowdata));
 		KPD_COL_READ(&ColData);
-		if(ColData != 0)
+		if(ColData != 0U)
 		{
-			*ValuePtr = KeysLut[(Rowdata*3) + ColData/2];
-			LoopTermnate = 1;
+			*ValuePtr = KeysLut[(Rowdata*3U) + ColData/2.0U];
+			LoopTermnate = 1U;
 		}
 		else
 		{

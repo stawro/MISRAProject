@@ -22,7 +22,7 @@
 #define u8USE_DELAY 0x00
 #define u8USE_TIMER 0x01
 
-#define u8TIMEOUT_FUNCTION u8USE_DELAY
+#define u8TIMEOUT_FUNCTION (u8USE_DELAY)
 
 #if(u8TIMEOUT_FUNCTION == u8USE_DELAY)
 
@@ -34,7 +34,7 @@
 #endif
 
 /*Self Axis Movement Detection Config*/
-#define u8SELF_AXIS_MOV  ON
+#define u8SELF_AXIS_MOV  (ON)
 
 
 #endif /* L3G4200D_CFG_H_ */

@@ -11,31 +11,31 @@
 #include "Basic_Types.h"
 #include "L3G4200D_Cfg.h"
 /*Full Scale Configuration*/
-#define u8FS_250 0x00
-#define u8FS_500 0x20
-#define u8FS_2000 0x30
-#define u8FULL_SCALE u8FS_250
+#define u8FS_250 0x00U
+#define u8FS_500 0x20U
+#define u8FS_2000 0x30U
+#define u8FULL_SCALE (u8FS_250)
 
 /*Axis Activation Configuration*/
-#define u8AXIS_INACTIVE 0x00
-#define u8X_AXIS_ACTIVE 0x01
-#define u8Y_AXIS_ACTIVE 0x02
-#define u8Z_AXIS_ACTIVE 0x04
+#define u8AXIS_INACTIVE 0x00U
+#define u8X_AXIS_ACTIVE 0x01U
+#define u8Y_AXIS_ACTIVE 0x02U
+#define u8Z_AXIS_ACTIVE 0x04U
 
 /*High Pass and low Pass filters Configurations*/
-#define u8NO_FILTERS   0x00
-#define u8HPF_ON_DATA  0x11
-#define u8LPF_ON_DATA  0x12
-#define u8BOTH_ON_DATA 0x13
-#define u8HPF_ON_INT   0x14
-#define u8LPF_ON_INT   0x18
-#define u8BOTH_ON_INT  0x1C
+#define u8NO_FILTERS   0x00U
+#define u8HPF_ON_DATA  0x11U
+#define u8LPF_ON_DATA  0x12U
+#define u8BOTH_ON_DATA 0x13U
+#define u8HPF_ON_INT   0x14U
+#define u8LPF_ON_INT   0x18U
+#define u8BOTH_ON_INT  0x1CU
 
 /*Self Axis movement detection*/
-#define u8INT_DIS 0x00
-#define u8INT1_X  0x03
-#define u8INT1_Y  0x0C
-#define u8INT1_Z  0x30
+#define u8INT_DIS 0x00U
+#define u8INT1_X  0x03U
+#define u8INT1_Y  0x0CU
+#define u8INT1_Z  0x30U
 
 /*Axis Activation*/
 typedef struct 
