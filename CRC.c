@@ -6,8 +6,8 @@ static u16 gen_crc16(const u8 *data, u16 size, u32 CRC16);
 void SECR_CrcPolynomialGenerate(u32* PolynomialPtr,u8 CrcLengthInBits)
 {
 	u32 DevisorValue;
-	DevisorValue = (u32)(GetPower(2,CrcLengthInBits)) - 1;
-	*PolynomialPtr = (rand() % DevisorValue) +0x10000 ;
+	DevisorValue = (u32)(GetPower(2u,(u23)CrcLengthInBits)) - 1u;
+	*PolynomialPtr = (rand() % DevisorValue) +0x10000u;
 }
 /***************************************************************************************/
 void SECR_GnerateCrc(const u8* PayloadPtr,u16 PayloadLength, u16* CrcPtr, u32 CrcPoly)
