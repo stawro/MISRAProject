@@ -132,12 +132,12 @@ static void CheckErrorFrame(void);
 /*Utilities*/
 static void RxBufferDnCallBackNotif(void);
 static void MemCpy( u8 DesPtr[], const u8 SrcPtr[], u16 Length,u8 StartIndex1,u8 StartIndex2);
-static void MemSet(u8 DesPtr[], u8 ConstVal, u16 Length);
+static void MemSet(u8 DesPtr[], u8 ConstVal, u16 Length,u8 StartIndex3);
 #if (COMM_CINFIG == SLAVE_COMM)
 static u8 MemCmp(const u8* Src1Ptr,const u8* Src2Ptr,u16 Length);
 static u8 GetCrcKey(void);
 #endif
-static u8 CalculateCheksum(u8* BufferPtr, u16 BufferLength);
+static u8 CalculateCheksum(const u8 BufferPtr[], u16 BufferLength);
 static void BuzzerSound(void);
 static u8 CheckCrc(void);
 static void PowerBluetoothOn(void);
@@ -914,10 +914,10 @@ void BLMGR_SetDeviceName(u8 const DeviceName[],u16 DeviceNameLength)
 static void UpdateIdFrame(void)
 {
 	/*Set Tx Frame to default values*/
-	MemSet(&BLMGR_DataTxBuffer[FRAME_HEADER_IDX],TX_FRAME_DEFUALT,MAX_DATA_BUFFER_LENGTH);
+	MemSet(BLMGR_DataTxBuffer,TX_FRAME_DEFUALT,(u16)MAX_DATA_BUFFER_LENGTH,FRAME_HEADER_IDX);
 
 	/*Set Header of Frame*/
-	MemSet(&BLMGR_DataTxBuffer[FRAME_HEADER_IDX],0xaaU,2U);
+	MemSet(BLMGR_DataTxBuffer,0xaaU,2U,FRAME_HEADER_IDX);
 	/*Set Device Sender*/
 	BLMGR_DataTxBuffer[FRAME_SENDER_IDX] = DEVICE_ROLE;
 	/*Set Device Receiver*/
@@ -933,11 +933,11 @@ static void UpdateIdFrame(void)
 	/*Update Device Name*/
 	MemCpy(BLMGR_DataTxBuffer,BLMGR_TxDevicName,BLMGR_TxDeviceNameLength,DEV_NAME_IDX,0U);
 	/*update Default CRC*/
-	MemSet(&BLMGR_DataTxBuffer[FRAME_CRC_IDX],TX_CRC_DEFAULT,2);
+	MemSet(BLMGR_DataTxBuffer,TX_CRC_DEFAULT,2U,FRAME_CRC_IDX);
 	/*update Frame CheckSum*/
 	BLMGR_DataTxBuffer[FRAME_CHECKSUM_IDX] = CalculateCheksum(BLMGR_DataTxBuffer,FRAME_CHECKSUM_IDX -1);
 	/*update frame tail*/
-	MemSet(&BLMGR_DataTxBuffer[FRAME_TAIL_IDX],0x55,1);
+	MemSet(BLMGR_DataTxBuffer,0x55U,1U,FRAME_TAIL_IDX);
 }
 /*********************************************************************************/
 static u8 CheckIdFrame(void)
@@ -1034,9 +1034,9 @@ static void UpdateValFrame(void)
 	u32 CrcKey=0U;
 	static u8 TempBuffer[MAX_DATA_BUFFER_LENGTH];
 	/*Set Tx Frame to default values*/
-	MemSet(&BLMGR_DataTxBuffer[FRAME_HEADER_IDX],TX_FRAME_DEFUALT,MAX_DATA_BUFFER_LENGTH);
+	MemSet(BLMGR_DataTxBuffer,TX_FRAME_DEFUALT,(u16)MAX_DATA_BUFFER_LENGTH,FRAME_HEADER_IDX);
 	/*Set Header of Frame*/
-	MemSet(&BLMGR_DataTxBuffer[FRAME_HEADER_IDX],0xaa,2);
+	MemSet(BLMGR_DataTxBuffer,0xaaU,2U,FRAME_HEADER_IDX);
 	/*Set Device Sender*/
 	BLMGR_DataTxBuffer[FRAME_SENDER_IDX] = DEVICE_ROLE;
 	/*Set Device Receiver*/
@@ -1054,17 +1054,18 @@ static void UpdateValFrame(void)
 	/*Prepare Data*/
 	TempBuffer[0x00] = BLMGR_RxOsType;
 	TempBuffer[0x01] = BLMGR_RxDeviceType;
-	MemCpy(TempBuffer,BLMGR_RxDevicName,BLMGR_RxDeviceNameLength,0x02U,0U);
+	MemCpy(TempBuffer,BLMGR_RxDevicName,(u16)BLMGR_RxDeviceNameLength,0x02U,0U);
+
 	SECR_GnerateCrc(TempBuffer,BLMGR_RxDeviceNameLength + 2, &Crc,BLMGR_CrcKey);
 	/*Update Crc*/
 	BLMGR_DataTxBuffer[FRAME_VAL_CRC_IDX] = (u8)Crc;
 	BLMGR_DataTxBuffer[FRAME_VAL_CRC_IDX + 1U] = (u8)(Crc >> 8);
 	/*update Default CRC*/
-	MemSet(&BLMGR_DataTxBuffer[FRAME_CRC_IDX],TX_CRC_DEFAULT,2);
+	MemSet(BLMGR_DataTxBuffer,TX_CRC_DEFAULT,2U,FRAME_CRC_IDX);
 	/*update Frame CheckSum*/
 	BLMGR_DataTxBuffer[FRAME_CHECKSUM_IDX] = CalculateCheksum(BLMGR_DataTxBuffer,FRAME_CHECKSUM_IDX -1U);
 	/*update frame tail*/
-	MemSet(&BLMGR_DataTxBuffer[FRAME_TAIL_IDX],0x55,1);
+	MemSet(BLMGR_DataTxBuffer,0x55U,1U,FRAME_TAIL_IDX);
 }
 /*********************************************************************************/
 static u8 CheckValFrame(void)
@@ -1148,9 +1149,9 @@ static void UpdateDataFrame(void)
 	static u8 TempBuffer2[MAX_DATA_BUFFER_LENGTH];
 	u16 Crc2=0U;
 	/*Set Tx Frame to default values*/
-	MemSet(&BLMGR_DataTxBuffer[FRAME_HEADER_IDX],TX_FRAME_DEFUALT,MAX_DATA_BUFFER_LENGTH);
+	MemSet(BLMGR_DataTxBuffer,TX_FRAME_DEFUALT,(u16)MAX_DATA_BUFFER_LENGTH,FRAME_HEADER_IDX);
 	/*Set Header of Frame*/
-	MemSet(&BLMGR_DataTxBuffer[FRAME_HEADER_IDX],0xaa,2);
+	MemSet(BLMGR_DataTxBuffer,0xaaU,2U,FRAME_HEADER_IDX);
 	/*Set Device Sender*/
 	BLMGR_DataTxBuffer[FRAME_SENDER_IDX] = DEVICE_ROLE;
 	/*Set Device Receiver*/
@@ -1163,7 +1164,7 @@ static void UpdateDataFrame(void)
 	/*Set Batterly level*/
 	BLMGR_DataTxBuffer[BATT_LEVEL_IDX] = BLMGR_TxBattLevel;
 	/*Calculate CRC*/
-	MemCpy(TempBuffer2,&BLMGR_DataTxBuffer[BATT_LEVEL_IDX],1);
+	MemCpy(TempBuffer2,BLMGR_DataTxBuffer,1U,0U,BATT_LEVEL_IDX);
 	SECR_GnerateCrc(TempBuffer2,1U, &Crc2,BLMGR_CrcKey);
 
 
@@ -1176,7 +1177,7 @@ static void UpdateDataFrame(void)
 	/*Set Speed degree*/
 	BLMGR_DataTxBuffer[SPEED_DEGREE_IDX]= BLMGR_TxSpeedDegree;
 	/*Calculate CRC*/
-	MemCpy(TempBuffer2,&BLMGR_DataTxBuffer[DIRECTION_IDX],2);
+	MemCpy(TempBuffer2,BLMGR_DataTxBuffer,2U,0U,DIRECTION_IDX);
 	SECR_GnerateCrc(TempBuffer2,2, &Crc2,BLMGR_CrcKey);
 	#else
 	/*Wrong Config, State in Idle*/
@@ -1188,7 +1189,7 @@ static void UpdateDataFrame(void)
 	/*update Frame CheckSum*/
 	BLMGR_DataTxBuffer[FRAME_CHECKSUM_IDX] = CalculateCheksum(BLMGR_DataTxBuffer,FRAME_CHECKSUM_IDX -1U);
 	/*update frame tail*/
-	MemSet(&BLMGR_DataTxBuffer[FRAME_TAIL_IDX],0x55,1);
+	MemSet(BLMGR_DataTxBuffer,0x55U,1U,FRAME_TAIL_IDX);
 }
 /*********************************************************************************/
 static u8 CheckDataFrame(void)
@@ -1215,7 +1216,8 @@ static u8 CheckDataFrame(void)
 				#if(COMM_CINFIG == MSTER_COMM)
 				TempBuffer3[0x00] = BLMGR_DataRxBuffer[DIRECTION_IDX];
 				TempBuffer3[0x01] = BLMGR_DataRxBuffer[SPEED_DEGREE_IDX];
-				SECR_GnerateCrc(TempBuffer3, 2, &GenCrc,BLMGR_CrcKey);
+				SECR_GnerateCrc(TempBuffer3, 2U,&GenCrc,BLMGR_CrcKey);
+
 				#elif(COMM_CINFIG == SLAVE_COMM)
 				TempBuffer3[0x00] = BLMGR_DataRxBuffer[BATT_LEVEL_IDX];
 				SECR_GnerateCrc(TempBuffer3, 1, &GenCrc,BLMGR_CrcKey);
@@ -1226,7 +1228,7 @@ static u8 CheckDataFrame(void)
 				/*Read Received CRC*/
 				RecvdCrc = 0x00U;
 				RecvdCrc = BLMGR_DataRxBuffer[FRAME_CRC_IDX];
-				RecvdCrc |= (((u8)BLMGR_DataRxBuffer[FRAME_CRC_IDX + 1]) << 8);
+				RecvdCrc |= ((BLMGR_DataRxBuffer[FRAME_CRC_IDX + 1U]) << 8U);
 
 				/*Compare the Two Crcs*/
 				/*if(GenCrc == RecvdCrc)*/
@@ -1629,9 +1631,9 @@ static void ErrorHandlingStateMachine(void)
 static void UpdateErrorFrame(u8 ErrorType)
 {
 	/*Set Tx Frame to default values*/
-	MemSet(&BLMGR_DataTxBuffer[FRAME_HEADER_IDX],TX_FRAME_DEFUALT,MAX_DATA_BUFFER_LENGTH);
+	MemSet(BLMGR_DataTxBuffer,TX_FRAME_DEFUALT,(u16)MAX_DATA_BUFFER_LENGTH,FRAME_HEADER_IDX);
 	/*Set Header of Frame*/
-	MemSet(&BLMGR_DataTxBuffer[FRAME_HEADER_IDX],0xaa,2);
+	MemSet(BLMGR_DataTxBuffer,0xaaU,2U,FRAME_HEADER_IDX);
 	/*Set Device Sender*/
 	BLMGR_DataTxBuffer[FRAME_SENDER_IDX] = DEVICE_ROLE;
 	/*Set Device Receiver*/
@@ -1648,7 +1650,7 @@ static void UpdateErrorFrame(u8 ErrorType)
 	/*update Frame CheckSum*/
 	BLMGR_DataTxBuffer[FRAME_CHECKSUM_IDX] = CalculateCheksum(BLMGR_DataTxBuffer,FRAME_CHECKSUM_IDX - 1U);
 	/*update frame tail*/
-	MemSet(&BLMGR_DataTxBuffer[FRAME_TAIL_IDX],0x55,1);
+	MemSet(BLMGR_DataTxBuffer,0x55U,1U,FRAME_TAIL_IDX);
 }
 /*********************************************************************************/
 static void CheckErrorFrame(void)
@@ -1735,12 +1737,12 @@ static void MemCpy( u8 DesPtr[], const u8 SrcPtr[], u16 Length,u8 StartIndex1,u8
 	}
 }
 /*********************************************************************************/
-static void MemSet(u8 DesPtr[], u8 ConstVal, u16 Length)
+static void MemSet(u8 DesPtr[], u8 ConstVal, u16 Length,u8 StartIndex3)
 {
 	u16 LoopIndex3;
 	for(LoopIndex3 = 0U; LoopIndex3 < Length; LoopIndex3 ++)
 	{
-		DesPtr[LoopIndex3]=ConstVal;
+		DesPtr[LoopIndex3+StartIndex3]=ConstVal;
 	}
 }
 /*********************************************************************************/
@@ -1760,15 +1762,15 @@ static u8 MemCmp(const u8* Src1Ptr,const u8* Src2Ptr,u16 Length)
 }
 #endif
 /*********************************************************************************/
-static u8 CalculateCheksum(u8* BufferPtr, u16 BufferLength)
+static u8 CalculateCheksum(const u8 BufferPtr[], u16 BufferLength)
 {
 	u32 Checksum = 0x00U;
 	u16 LoopIndex5;
 	for (LoopIndex5 = 0U; LoopIndex5 <= BufferLength; LoopIndex5 ++)
 	{
-		Checksum += *(BufferPtr + LoopIndex5);
+		Checksum += BufferPtr[LoopIndex5];
 	}
-	Checksum = Checksum % 256;
+	Checksum = Checksum % 256U;
 	return (u8)Checksum;
 }
 /*********************************************************************************/
@@ -1778,12 +1780,12 @@ static u8 CheckCrc(void)
 	u16 GenCrc2=0U;
 	u8 TempBuffer4[MAX_DATA_BUFFER_LENGTH];
 	u8 IsFrameValid6;
-	RxCrc = 0x00;
+	RxCrc = 0x00U;
 	RxCrc = BLMGR_DataRxBuffer[FRAME_VAL_CRC_IDX];
 	RxCrc |= ((u16)BLMGR_DataRxBuffer[FRAME_VAL_CRC_IDX +1]) << 8;
 	TempBuffer4[0x00] = TX_OS_TYPE;
 	TempBuffer4[0x01] = TX_DEV_TYPE;
-	MemCpy(&TempBuffer4[0x02],BLMGR_TxDevicName,BLMGR_TxDeviceNameLength);
+	MemCpy(TempBuffer4,BLMGR_TxDevicName,BLMGR_TxDeviceNameLength,0x02U,0U);
 	SECR_GnerateCrc(TempBuffer4,BLMGR_TxDeviceNameLength + 2, &GenCrc2,BLMGR_CrcKey);
 	if(GenCrc2 == RxCrc)
 	{
@@ -1868,17 +1870,19 @@ static void BuzzerInit(void)
 static void PowerBlueToothInit(void)
 {
 	DIO_InitPortDirection(BlueToothPwrConfig.Portname,0xffU,BlueToothPwrConfig.Portmask);
-	DIO_WritePort(BlueToothPwrConfig.Portname,0x00U,BlueToothPwrConfig.PortMask);
+	DIO_WritePort(BlueToothPwrConfig.Portname,0x00U,BlueToothPwrConfig.Portmask);
 }
 /*********************************************************************************/
 static void BlueToothKeyInit(void)
 {
-	DIO_InitPortDirection(BluetoothKeyConfig.Portname,0xffU,BluetoothKeyConfig.PortMask);
-	DIO_WritePort(BluetoothKeyConfig.Portname,0xffU,BluetoothKeyConfig.PortMask);
+	DIO_InitPortDirection(BluetoothKeyConfig.Portname,0xffU,BluetoothKeyConfig.Portmask);
+	DIO_WritePort(BluetoothKeyConfig.Portname,0xffU,BluetoothKeyConfig.Portmask);
 }
 
 static void InserBreakPoint(void)
 {
-	DIO_WritePort(BuzzerConfig.Portname,0xffU,BuzzerConfig.PortMask);
-	while(1);
+	DIO_WritePort(BuzzerConfig.Portname,0xffU,BuzzerConfig.Portmask);
+	while(1){
+
+	}
 }
