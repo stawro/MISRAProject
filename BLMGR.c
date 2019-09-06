@@ -1047,7 +1047,7 @@ static void UpdateValFrame(void)
 	BLMGR_DataTxBuffer[PARAM_LENGTH_IDX] = 2U;
 	#if(COMM_CINFIG == MSTER_COMM)
 	/* Start Generating the Key for CRC*/
-	SECR_CrcPolynomialGenerate(&CrcKey,16U);
+	SECR_CrcPolynomialGenerate(&CrcKey,Crc);
 	BLMGR_CrcKey = CrcKey;
 	#endif
 	/*Calculate CRC*/
@@ -1056,7 +1056,7 @@ static void UpdateValFrame(void)
 	TempBuffer[0x01] = BLMGR_RxDeviceType;
 	MemCpy(TempBuffer,BLMGR_RxDevicName,(u16)BLMGR_RxDeviceNameLength,0x02U,0U);
 
-	SECR_GnerateCrc(TempBuffer,BLMGR_RxDeviceNameLength + 2, &Crc,BLMGR_CrcKey);
+	SECR_GnerateCrc(TempBuffer,BLMGR_RxDeviceNameLength + 2u, &Crc,BLMGR_CrcKey);
 	/*Update Crc*/
 	BLMGR_DataTxBuffer[FRAME_VAL_CRC_IDX] = (u8)Crc;
 	BLMGR_DataTxBuffer[FRAME_VAL_CRC_IDX + 1U] = (u8)(Crc >> 8);
