@@ -8,7 +8,7 @@
 
 #ifndef PWM_H_
 #define PWM_H_
-#include "BasicTypes.h"
+#include "Basic_Types.h"
 void PWM_Init(void);
 void PWM_SetSpeed(u8 SpeedPercent);
 

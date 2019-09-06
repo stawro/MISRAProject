@@ -4,10 +4,12 @@
 
 SHELL = cmd.exe
 
-CG_TOOL_ROOT := c:/ti/ccsv6/tools/compiler/arm_5.1.6
+CG_TOOL_ROOT := C:/ti/ccs901/ccs/tools/compiler/arm_5.1.14
+
+GEN_OPTS__FLAG := 
+GEN_CMDS__FLAG := 
 
 ORDERED_OBJS += \
-$(GEN_CMDS__FLAG) \
 "./BLMGR.obj" \
 "./BLMGR_CFG.obj" \
 "./BLTD.obj" \
@@ -16,7 +18,8 @@ $(GEN_CMDS__FLAG) \
 "./L3G4200D.obj" \
 "./L3G4200D_Lcfg.obj" \
 "./uart_test.obj" \
--l"libc.a" \
+$(GEN_CMDS__FLAG) \
+-llibc.a \
 
 -include ../makefile.init
 
@@ -30,83 +33,92 @@ RMDIR := RMDIR /S/Q
 -include objects.mk
 
 ifneq ($(MAKECMDGOALS),clean)
-ifneq ($(strip $(S_DEPS)),)
--include $(S_DEPS)
-endif
-ifneq ($(strip $(S_UPPER_DEPS)),)
--include $(S_UPPER_DEPS)
-endif
-ifneq ($(strip $(S62_DEPS)),)
--include $(S62_DEPS)
-endif
-ifneq ($(strip $(C64_DEPS)),)
--include $(C64_DEPS)
-endif
-ifneq ($(strip $(ASM_DEPS)),)
--include $(ASM_DEPS)
-endif
-ifneq ($(strip $(CC_DEPS)),)
--include $(CC_DEPS)
-endif
-ifneq ($(strip $(S55_DEPS)),)
--include $(S55_DEPS)
-endif
-ifneq ($(strip $(C67_DEPS)),)
--include $(C67_DEPS)
-endif
-ifneq ($(strip $(C??_DEPS)),)
--include $(C??_DEPS)
-endif
-ifneq ($(strip $(CLA_DEPS)),)
--include $(CLA_DEPS)
-endif
-ifneq ($(strip $(CPP_DEPS)),)
--include $(CPP_DEPS)
-endif
-ifneq ($(strip $(S??_DEPS)),)
--include $(S??_DEPS)
-endif
-ifneq ($(strip $(C_DEPS)),)
--include $(C_DEPS)
-endif
-ifneq ($(strip $(C62_DEPS)),)
--include $(C62_DEPS)
-endif
-ifneq ($(strip $(CXX_DEPS)),)
--include $(CXX_DEPS)
-endif
-ifneq ($(strip $(C++_DEPS)),)
--include $(C++_DEPS)
-endif
-ifneq ($(strip $(ASM_UPPER_DEPS)),)
--include $(ASM_UPPER_DEPS)
-endif
-ifneq ($(strip $(K_DEPS)),)
--include $(K_DEPS)
-endif
-ifneq ($(strip $(C43_DEPS)),)
--include $(C43_DEPS)
-endif
-ifneq ($(strip $(S67_DEPS)),)
--include $(S67_DEPS)
-endif
-ifneq ($(strip $(SA_DEPS)),)
--include $(SA_DEPS)
-endif
-ifneq ($(strip $(S43_DEPS)),)
--include $(S43_DEPS)
-endif
-ifneq ($(strip $(OPT_DEPS)),)
--include $(OPT_DEPS)
-endif
-ifneq ($(strip $(S64_DEPS)),)
--include $(S64_DEPS)
+ifneq ($(strip $(C55_DEPS)),)
+-include $(C55_DEPS)
 endif
 ifneq ($(strip $(C_UPPER_DEPS)),)
 -include $(C_UPPER_DEPS)
 endif
-ifneq ($(strip $(C55_DEPS)),)
--include $(C55_DEPS)
+ifneq ($(strip $(S67_DEPS)),)
+-include $(S67_DEPS)
+endif
+ifneq ($(strip $(S62_DEPS)),)
+-include $(S62_DEPS)
+endif
+ifneq ($(strip $(S_DEPS)),)
+-include $(S_DEPS)
+endif
+ifneq ($(strip $(OPT_DEPS)),)
+-include $(OPT_DEPS)
+endif
+ifneq ($(strip $(C??_DEPS)),)
+-include $(C??_DEPS)
+endif
+ifneq ($(strip $(ASM_UPPER_DEPS)),)
+-include $(ASM_UPPER_DEPS)
+endif
+ifneq ($(strip $(S??_DEPS)),)
+-include $(S??_DEPS)
+endif
+ifneq ($(strip $(C64_DEPS)),)
+-include $(C64_DEPS)
+endif
+ifneq ($(strip $(CXX_DEPS)),)
+-include $(CXX_DEPS)
+endif
+ifneq ($(strip $(S64_DEPS)),)
+-include $(S64_DEPS)
+endif
+ifneq ($(strip $(INO_DEPS)),)
+-include $(INO_DEPS)
+endif
+ifneq ($(strip $(CLA_DEPS)),)
+-include $(CLA_DEPS)
+endif
+ifneq ($(strip $(S55_DEPS)),)
+-include $(S55_DEPS)
+endif
+ifneq ($(strip $(SV7A_DEPS)),)
+-include $(SV7A_DEPS)
+endif
+ifneq ($(strip $(C62_DEPS)),)
+-include $(C62_DEPS)
+endif
+ifneq ($(strip $(C67_DEPS)),)
+-include $(C67_DEPS)
+endif
+ifneq ($(strip $(PDE_DEPS)),)
+-include $(PDE_DEPS)
+endif
+ifneq ($(strip $(K_DEPS)),)
+-include $(K_DEPS)
+endif
+ifneq ($(strip $(C_DEPS)),)
+-include $(C_DEPS)
+endif
+ifneq ($(strip $(CC_DEPS)),)
+-include $(CC_DEPS)
+endif
+ifneq ($(strip $(C++_DEPS)),)
+-include $(C++_DEPS)
+endif
+ifneq ($(strip $(C43_DEPS)),)
+-include $(C43_DEPS)
+endif
+ifneq ($(strip $(S43_DEPS)),)
+-include $(S43_DEPS)
+endif
+ifneq ($(strip $(ASM_DEPS)),)
+-include $(ASM_DEPS)
+endif
+ifneq ($(strip $(S_UPPER_DEPS)),)
+-include $(S_UPPER_DEPS)
+endif
+ifneq ($(strip $(CPP_DEPS)),)
+-include $(CPP_DEPS)
+endif
+ifneq ($(strip $(SA_DEPS)),)
+-include $(SA_DEPS)
 endif
 endif
 
@@ -131,23 +143,24 @@ all: test.out
 
 # Tool invocations
 test.out: $(OBJS) $(GEN_CMDS)
-	@echo 'Building target: $@'
+	@echo 'Building target: "$@"'
 	@echo 'Invoking: ARM Linker'
-	"c:/ti/ccsv6/tools/compiler/arm_5.1.6/bin/armcl" -mv4 --code_state=32 --abi=ti_arm9_abi --check_misra="all,-1" --misra_required=error --misra_advisory=error -g --display_error_number --diag_warning=225 --diag_wrap=off -z -m"test.map" -i"c:/ti/ccsv6/tools/compiler/arm_5.1.6/lib" -i"c:/ti/ccsv6/tools/compiler/arm_5.1.6/include" --reread_libs --warn_sections --display_error_number --diag_wrap=off --xml_link_info="test_linkInfo.xml" --rom_model -o "test.out" $(ORDERED_OBJS)
-	@echo 'Finished building target: $@'
+	"C:/ti/ccs901/ccs/tools/compiler/arm_5.1.14/bin/armcl" -mv4 --code_state=32 --abi=ti_arm9_abi --misra_required=error --check_misra="all,-1" --misra_advisory=error -g --display_error_number --diag_wrap=off --diag_warning=225 -z -m"test.map" -i"C:/ti/ccs901/ccs/tools/compiler/arm_5.1.14/lib" -i"C:/ti/ccs901/ccs/tools/compiler/arm_5.1.14/include" --reread_libs --display_error_number --diag_wrap=off --warn_sections --xml_link_info="test_linkInfo.xml" --rom_model -o "test.out" $(ORDERED_OBJS)
+	@echo 'Finished building target: "$@"'
 	@echo ' '
 
 test.hex: $(EXE_OUTPUTS)
+	@echo 'Building files: $(strip $(EXE_OUTPUTS__QUOTED))'
 	@echo 'Invoking: ARM Hex Utility'
-	"c:/ti/ccsv6/tools/compiler/arm_5.1.6/bin/armhex"  -o "test.hex" $(EXE_OUTPUTS__QUOTED)
-	@echo 'Finished building: $@'
+	"C:/ti/ccs901/ccs/tools/compiler/arm_5.1.14/bin/armhex"  -o "test.hex" $(EXE_OUTPUTS__QUOTED)
+	@echo 'Finished building: $(strip $(EXE_OUTPUTS__QUOTED))'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(EXE_OUTPUTS__QUOTED)$(BIN_OUTPUTS__QUOTED)
-	-$(RM) "BLMGR.pp" "BLMGR_CFG.pp" "BLTD.pp" "CRC.pp" "KEYPAD.pp" "L3G4200D.pp" "L3G4200D_Lcfg.pp" "uart_test.pp" 
+	-$(RM) $(BIN_OUTPUTS__QUOTED)$(EXE_OUTPUTS__QUOTED)
 	-$(RM) "BLMGR.obj" "BLMGR_CFG.obj" "BLTD.obj" "CRC.obj" "KEYPAD.obj" "L3G4200D.obj" "L3G4200D_Lcfg.obj" "uart_test.obj" 
+	-$(RM) "BLMGR.d" "BLMGR_CFG.d" "BLTD.d" "CRC.d" "KEYPAD.d" "L3G4200D.d" "L3G4200D_Lcfg.d" "uart_test.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
 
