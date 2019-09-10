@@ -19,9 +19,9 @@ extern void BLTD_SendInquireCmd(void);
 extern void BLTD_SendMessage(const u8 *Message,u16 MsgLength);
 extern void BLTD_StartWaitPairing(void);
 extern void BLTD_StartReceivingData(u8* DataBuffer,u16 BufferLength,CbkPfnType CbkFnPtr);
-extern u8 BLTD_CheckForData(u8 *data2);
+extern u8 BLTD_CheckForData(u8 *Data);
 extern void BLTD_SenTestCmd(void);
-extern u8 BLTD_GetRecievedData(u8*Data, u16 Length);
+extern u8 BLTD_GetRecievedData(u8 Data[], u16 Length);
 
 
 
