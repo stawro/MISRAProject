@@ -141,11 +141,11 @@ static u8 CalculateCheksum(const u8 BufferPtr[], u16 BufferLength);
 static void BuzzerSound(void);
 static u8 CheckCrc(void);
 static void PowerBluetoothOn(void);
-static void PowerBluetoothOff(void);
+/*static void PowerBluetoothOff(void);*/
 static void BuzzerInit(void);
 static void PowerBlueToothInit(void);
 static void BlueToothKeyInit(void);
-static void InserBreakPoint(void);
+/*static void InserBreakPoint(void);*/
 /*********************************************************************************/
 /*Static variables*/
 /*********************************************************************************/
@@ -161,16 +161,14 @@ static u8  BLMGR_RxOsType;
 static u8  BLMGR_RxDeviceType;
 static u8  BLMGR_RxDevicName[MAX_DEV_NAME_LENGTH];
 static u8  BLMGR_TxDevicName[MAX_DEV_NAME_LENGTH];
-static u8  BLMGR_RxDeviceNameLength;
+static u16  BLMGR_RxDeviceNameLength;
 static u16  BLMGR_TxDeviceNameLength;
 static u8  BLMGR_TxFrameReceiver;
-static u8  BLMGR_RxFrameSender;
+
 static u32 BLMGR_CrcKey;
 static u8  BLMGR_CommState;
 static u8  BLMGR_CommTimeOutCounter;
 static u8  BLMGR_TxBattLevel;
-static u8  BLMGR_RxDirection;
-static u8  BLMGR_RxSpeedDegree;
 #if (COMM_CINFIG == SLAVE_COMM)
 static u8  BLMGR_TxDirection;
 static u8  BLMGR_TxSpeedDegree;
@@ -184,7 +182,6 @@ static u8  BLMGR_HandshakeFailRepCount;
 static u8  BLMGR_CommFailReptCount;
 static u8  BLMGR_ExpectedReceivedFrame;
 static u8  BLMGR_DisconectionTimeOut;
-static u8 testflag = 0U;
 static u8 BLMGR_DevicePaired;
 /*********************************************************************************/
 /*Global Services*/
@@ -198,8 +195,8 @@ void BLMGR_Test(void)
 {
 	BuzzerSound();
 
-	
-	
+
+
 }
 
 /*********************************************************************************/
@@ -226,7 +223,7 @@ void BLMGR_BluetoothInit(void)
 	PowerBlueToothInit();
 	/*Init Key*/
 	BlueToothKeyInit();
-	
+
 }
 /*********************************************************************************/
 void BLMGR_BluetoothStateMachine(void)
@@ -242,7 +239,7 @@ void BLMGR_BluetoothStateMachine(void)
 				PowerBluetoothOn();
 				PairingInit();
 				BLMGR_BluetoothState = BLUETOOTH_STATE_PAIRING;
-				
+
 			}
 			break;
 		}
@@ -305,7 +302,7 @@ void BLMGR_BluetoothStateMachine(void)
 			else
 			{
 				/*Communication is in progress*/
-				
+
 			}
 
 	        break;
@@ -327,14 +324,14 @@ void BLMGR_BluetoothStateMachine(void)
 				{
 					BLMGR_BluetoothState = BLUETOOTH_STATE_PAIRING;
 					BLMGR_DisconectionTimeOut = 0U;
-					
+
 				}
 				else
 				{
 					/*	BuzzerSound();*/
 					BLMGR_DisconectionTimeOut ++;
 				}
-				
+
 			}
 			else if (BLMGR_StopDeviceRequest == 1U)
 			{
@@ -383,7 +380,7 @@ static void CommunicationInit(void)
 static void PairingStateMachine(void)
 {
 	u8 ResponseState;
-	
+
 	if(BLMGR_DevicePaired == 1U)
 	{
 		/*InserBreakPoint();*/
@@ -401,8 +398,8 @@ static void PairingStateMachine(void)
 				/*go to the init state*/
 				BLMGR_PairingFailRepetionCount = 0U;
 				BLMGR_PairingState = PAIRING_STATE_INITIALIZING;
-				
-				
+
+
 			}
 			else
 			{
@@ -429,7 +426,7 @@ static void PairingStateMachine(void)
 			RespArray[1] = (u8)'K';
 			RespArray[2] = 0x0dU;
 			RespArray[3] = 0x0aU;
-			
+
 			ResponseState = BLTD_CheckForResponse(RespArray,4U);
 			switch(ResponseState)
 			{
@@ -438,17 +435,17 @@ static void PairingStateMachine(void)
 				BLMGR_PairingTimeoutCounter = 0U;
 				/*Respnse recieved and go to send the inquire request*/
 				BLMGR_PairingState = PAIRING_STATE_INQUIRE;
-				
+
 				break;
 
 				case BLTD_RESP_STATUS_NOK:
-				
+
 				if(BLMGR_PairingFailRepetionCount <= MAX_PAIRING_FAIL_REPT)
 				{
 					/*response received not ok so re send the command again*/
 					BLMGR_PairingState = PAIRING_STATE_INITIALIZING;
 					BLMGR_PairingFailRepetionCount ++;
-					
+
 				}
 				else
 				{
@@ -459,7 +456,7 @@ static void PairingStateMachine(void)
 				break;
 
 				case BLTD_RESP_STATUS_NON:
-				
+
 				/*response not received and wait until timeout*/
 				BLMGR_PairingTimeoutCounter ++;
 				if(BLMGR_PairingTimeoutCounter > PAIRING_MAX_COUNTS)
@@ -490,7 +487,7 @@ static void PairingStateMachine(void)
 		}
 		case PAIRING_STATE_INQUIRE:
 		{
-			
+
 			/*Send Inquire Command*/
 			BLTD_SendInquireCmd();
 			/*wait for the Inquire Response*/
@@ -845,10 +842,10 @@ static void CommStateMachine(void)
 			}
 			else
 			{
-				
+
 				if(BLMGR_CommTimeOutCounter > COMM_MAX_COUNTS)
 				{
-					
+
 					/*InserBreakPoint();*/
 					/*Handle Timeout Error*/
 					BLMGR_CommTimeOutCounter = 0U;
@@ -865,7 +862,7 @@ static void CommStateMachine(void)
 		}
 		case COMM_STATE_SEND_ERROR_FRAME:
 		{
-			
+
 			ErrorHandlingStateMachine();
 
 	        break;
@@ -883,10 +880,10 @@ static void BuzzerSound(void)
 	for(LoopIndex = 0U; LoopIndex < 2U ; LoopIndex ++)
 	{
 		DIO_WritePort(BuzzerConfig.Portname,BUZEER_ON,BuzzerConfig.Portmask);
-		_delay_ms(25);
+		_delay_ms(25U);
 		DIO_WritePort(BuzzerConfig.Portname,BUZEER_ON,BuzzerConfig.Portmask);
-		_delay_ms(25);
-		
+		_delay_ms(25U);
+
 	}
 
 }
@@ -895,7 +892,7 @@ static void RxBufferDnCallBackNotif(void)
 {
 
 	BLMGR_FrameReceivedNotificationFlag = 1U;
-	
+
 }
 /*********************************************************************************/
 void BLMGR_SetReceiver(u8 Receiver)
@@ -925,7 +922,7 @@ static void UpdateIdFrame(void)
 	/*Set frame type*/
 	BLMGR_DataTxBuffer[FRAME_TYPE_IDX] = FRAME_TYPE_ID_FRAME;
 	/*Set paramter length*/
-	BLMGR_DataTxBuffer[PARAM_LENGTH_IDX] = 2 + BLMGR_TxDeviceNameLength;
+	BLMGR_DataTxBuffer[PARAM_LENGTH_IDX] = (u8)(2U + BLMGR_TxDeviceNameLength);
 	/*Update Os Type*/
 	BLMGR_DataTxBuffer[OS_TYPE_IDX] = TX_OS_TYPE;
 	/*Update Device Type*/
@@ -935,7 +932,7 @@ static void UpdateIdFrame(void)
 	/*update Default CRC*/
 	MemSet(BLMGR_DataTxBuffer,TX_CRC_DEFAULT,2U,FRAME_CRC_IDX);
 	/*update Frame CheckSum*/
-	BLMGR_DataTxBuffer[FRAME_CHECKSUM_IDX] = CalculateCheksum(BLMGR_DataTxBuffer,FRAME_CHECKSUM_IDX -1);
+	BLMGR_DataTxBuffer[FRAME_CHECKSUM_IDX] = CalculateCheksum(BLMGR_DataTxBuffer,FRAME_CHECKSUM_IDX -1U);
 	/*update frame tail*/
 	MemSet(BLMGR_DataTxBuffer,0x55U,1U,FRAME_TAIL_IDX);
 }
@@ -944,12 +941,13 @@ static u8 CheckIdFrame(void)
 {
 	u8 IsFrameValid3;
 	u8 TempVar1;
+
 	/* Perform a Checksum on the frame*/
 	TempVar1 = CalculateCheksum(BLMGR_DataRxBuffer,FRAME_CHECKSUM_IDX -1U);
 
 	if (TempVar1 == BLMGR_DataRxBuffer[FRAME_CHECKSUM_IDX])
 	{
-		
+
 		/*Perform Start and end of frame validation*/
 		if((BLMGR_DataRxBuffer[FRAME_HEADER_IDX] == 0xaaU) &&
 		(BLMGR_DataRxBuffer[FRAME_HEADER_IDX + 1U] == 0xaaU) &&
@@ -968,13 +966,12 @@ static u8 CheckIdFrame(void)
 					if(BLMGR_DataRxBuffer[FRAME_RECVER_IDX] == DEVICE_ROLE)
 					{
 						/*Validate Device Name*/
-						BLMGR_RxDeviceNameLength = 8 - BLMGR_DataRxBuffer[PARAM_LENGTH_IDX];
+						BLMGR_RxDeviceNameLength = (8U - BLMGR_DataRxBuffer[PARAM_LENGTH_IDX]);
 						if(BLMGR_RxDeviceNameLength <= MAX_DEV_NAME_LENGTH)
 						{
-							
+
 							/*Update received paramters*/
 							/*Update Frame sender*/
-							BLMGR_RxFrameSender = BLMGR_DataRxBuffer[FRAME_SENDER_IDX];
 							/*Update OS Type*/
 							BLMGR_RxOsType = BLMGR_DataRxBuffer[OS_TYPE_IDX];
 							/*Update Device Type*/
@@ -1030,7 +1027,7 @@ static u8 CheckIdFrame(void)
 /*********************************************************************************/
 static void UpdateValFrame(void)
 {
-	u16 Crc=0U;
+	u8 Crc=0U;
 	u32 CrcKey=0U;
 	static u8 TempBuffer[MAX_DATA_BUFFER_LENGTH];
 	/*Set Tx Frame to default values*/
@@ -1056,10 +1053,10 @@ static void UpdateValFrame(void)
 	TempBuffer[0x01] = BLMGR_RxDeviceType;
 	MemCpy(TempBuffer,BLMGR_RxDevicName,(u16)BLMGR_RxDeviceNameLength,0x02U,0U);
 
-	SECR_GnerateCrc(TempBuffer,BLMGR_RxDeviceNameLength + 2u, &Crc,BLMGR_CrcKey);
+	SECR_GnerateCrc(TempBuffer,(BLMGR_RxDeviceNameLength + 2u),(u16*)&Crc,BLMGR_CrcKey);
 	/*Update Crc*/
 	BLMGR_DataTxBuffer[FRAME_VAL_CRC_IDX] = (u8)Crc;
-	BLMGR_DataTxBuffer[FRAME_VAL_CRC_IDX + 1U] = (u8)(Crc >> 8);
+	BLMGR_DataTxBuffer[FRAME_VAL_CRC_IDX + 1U] = ((u8)((u8)Crc >> (u8)8U));
 	/*update Default CRC*/
 	MemSet(BLMGR_DataTxBuffer,TX_CRC_DEFAULT,2U,FRAME_CRC_IDX);
 	/*update Frame CheckSum*/
@@ -1194,6 +1191,8 @@ static void UpdateDataFrame(void)
 /*********************************************************************************/
 static u8 CheckDataFrame(void)
 {
+    /*u8  BLMGR_RxDirection;*/
+    /*u8  BLMGR_RxSpeedDegree;*/
 	static u8 TempBuffer3[MAX_DATA_BUFFER_LENGTH];
 	u8 IsFrameValid5;
 	u8 TempVar3;
@@ -1228,7 +1227,7 @@ static u8 CheckDataFrame(void)
 				/*Read Received CRC*/
 				RecvdCrc = 0x00U;
 				RecvdCrc = BLMGR_DataRxBuffer[FRAME_CRC_IDX];
-				RecvdCrc |= ((BLMGR_DataRxBuffer[FRAME_CRC_IDX + 1U]) << 8U);
+				RecvdCrc |= (u16)((u16)((u16)BLMGR_DataRxBuffer[FRAME_CRC_IDX + 1U]) << 8U);
 
 				/*Compare the Two Crcs*/
 				/*if(GenCrc == RecvdCrc)*/
@@ -1238,12 +1237,11 @@ static u8 CheckDataFrame(void)
 					{
 						/*Update received paramters*/
 						/*Update Frame sender*/
-						BLMGR_RxFrameSender = BLMGR_DataRxBuffer[FRAME_SENDER_IDX];
 						#if(COMM_CINFIG == MSTER_COMM)
 						/*Update Direction*/
-						BLMGR_RxDirection = BLMGR_DataRxBuffer[DIRECTION_IDX];
+						/*BLMGR_RxDirection = BLMGR_DataRxBuffer[DIRECTION_IDX];*/
 						/*Update Speed degree*/
-						BLMGR_RxSpeedDegree = BLMGR_DataRxBuffer[SPEED_DEGREE_IDX];
+						/*BLMGR_RxSpeedDegree = BLMGR_DataRxBuffer[SPEED_DEGREE_IDX];*/
 						#elif(COMM_CINFIG == SLAVE_COMM)
 						BLMGR_RxBattLevel = BLMGR_DataRxBuffer[BATT_LEVEL_IDX];
 						#else
@@ -1339,8 +1337,8 @@ static void ErrorHandlingStateMachine(void)
 				}
 				case FRAME_TYPE_DATA_FRAME:
 				{
-					
-					
+
+
 					if(BLMGR_CommFailReptCount <= MAX_COMM_FAIL_REP)
 					{
 						/*InserBreakPoint();*/
@@ -1782,11 +1780,11 @@ static u8 CheckCrc(void)
 	u8 IsFrameValid6;
 	RxCrc = 0x00U;
 	RxCrc = BLMGR_DataRxBuffer[FRAME_VAL_CRC_IDX];
-	RxCrc |= ((u16)BLMGR_DataRxBuffer[FRAME_VAL_CRC_IDX +1]) << 8;
+	RxCrc |= (u16)((u16)((u16)BLMGR_DataRxBuffer[FRAME_VAL_CRC_IDX + 1U]) << 8U);
 	TempBuffer4[0x00] = TX_OS_TYPE;
 	TempBuffer4[0x01] = TX_DEV_TYPE;
 	MemCpy(TempBuffer4,BLMGR_TxDevicName,BLMGR_TxDeviceNameLength,0x02U,0U);
-	SECR_GnerateCrc(TempBuffer4,BLMGR_TxDeviceNameLength + 2, &GenCrc2,BLMGR_CrcKey);
+	SECR_GnerateCrc(TempBuffer4,BLMGR_TxDeviceNameLength + 2U, &GenCrc2,BLMGR_CrcKey);
 	if(GenCrc2 == RxCrc)
 	{
 		BLMGR_ErrorState = ERRH_NO_ERROR;
@@ -1847,10 +1845,10 @@ static void PowerBluetoothOn(void)
 	DIO_WritePort(BlueToothPwrConfig.Portname,BLOUETOOTH_ON,BlueToothPwrConfig.Portmask);
 }
 /*********************************************************************************/
-static void PowerBluetoothOff(void)
+/*static void PowerBluetoothOff(void)
 {
 	DIO_WritePort(BlueToothPwrConfig.Portname,!BLOUETOOTH_ON,BlueToothPwrConfig.Portmask);
-}
+}*/
 /*********************************************************************************/
 static void DisconnectStateMachine(void)
 {
@@ -1879,10 +1877,10 @@ static void BlueToothKeyInit(void)
 	DIO_WritePort(BluetoothKeyConfig.Portname,0xffU,BluetoothKeyConfig.Portmask);
 }
 
-static void InserBreakPoint(void)
+/*static void InserBreakPoint(void)
 {
 	DIO_WritePort(BuzzerConfig.Portname,0xffU,BuzzerConfig.Portmask);
 	while(1){
 
 	}
-}
+}*/

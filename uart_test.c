@@ -2,6 +2,7 @@
 #include "BLMGR.h"
 #include "PWM.h"
 #include "GPT.h"
+#include "DIO.h"
 void Cyclic30ms(void);
 u32 main(void)
 {
@@ -27,7 +28,7 @@ GPT_Timer30msInit(&Cyclic30ms);
 		Count2 = (Count2 +1U) %20U;
 		BLMGR_SetBattLevel((u8)(Count2 / 4U));
 		
-		_delay_ms(100);
+		_delay_ms(100U);
 		Count ++;
 		if(start == 0U)
 		{

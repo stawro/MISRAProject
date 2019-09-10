@@ -30,7 +30,6 @@ Type Range: 0 .. 255
 */
 
 typedef unsigned char u8;
-
 /*
 Type name: u16
 Type Description: unsigned short int type
